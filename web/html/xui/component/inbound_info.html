@@ -1,0 +1,92 @@
+{{define "inboundInfoStream"}}
+<p>Truyền tải: <a-tag color="green">[[ inbound.network ]]</a-tag></p>
+
+<template v-if="inbound.isTcp || inbound.isWs || inbound.isH2">
+    <p v-if="inbound.host">Host: <a-tag color="green">[[ inbound.host ]]</a-tag></p>
+    <p v-else>Host: <a-tag color="orange">None</a-tag></p>
+
+    <p v-if="inbound.path">Đường dẫn: <a-tag color="green">[[ inbound.path ]]</a-tag></p>
+    <p v-else>Đường dẫn: <a-tag color="orange">None</a-tag></p>
+</template>
+
+<template v-if="inbound.isQuic">
+    <p>Mã hóa quic: <a-tag color="green">[[ inbound.quicSecurity ]]</a-tag></p>
+    <p>Mật khẩu quic: <a-tag color="green">[[ inbound.quicKey ]]</a-tag></p>
+    <p>Ngụy trabg quic<a-tag color="green">[[ inbound.quicType ]]</a-tag></p>
+</template>
+
+<template v-if="inbound.isKcp">
+    <p>Mã hóa Kcp: <a-tag color="green">[[ inbound.kcpType ]]</a-tag></p>
+    <p>Mật khẩu kcp:<a-tag color="green">[[ inbound.kcpSeed ]]</a-tag></p>
+</template>
+
+<template v-if="inbound.isGrpc">
+    <p>grpc serviceName: <a-tag color="green">[[ inbound.serviceName ]]</a-tag></p>
+</template>
+
+<template v-if="inbound.tls || inbound.xtls">
+    <p v-if="inbound.tls">tls: <a-tag color="green">Bật</a-tag></p>
+    <p v-if="inbound.xtls">xtls: <a-tag color="green">Bật</a-tag></p>
+</template>
+<template v-else>
+    <p>tls: <a-tag color="red">Đóng</a-tag></p>
+</template>
+<p v-if="inbound.tls">
+    tls tên miền: <a-tag :color="inbound.serverName ? 'green' : 'orange'">[[ inbound.serverName ? inbound.serverName : "None" ]]</a-tag>
+</p>
+<p v-if="inbound.xtls">
+    xtls tên miền: <a-tag :color="inbound.serverName ? 'green' : 'orange'">[[ inbound.serverName ? inbound.serverName : "None" ]]</a-tag>
+</p>
+{{end}}
+
+
+{{define "component/inboundInfoComponent"}}
+<div>
+    <p>Giao thức: <a-tag color="green">[[ dbInbound.protocol ]]</a-tag></p>
+    <p>Địa chỉ: <a-tag color="blue">[[ dbInbound.address ]]</a-tag></p>
+    <p>Cổng: <a-tag color="green">[[ dbInbound.port ]]</a-tag></p>
+
+    <template v-if="dbInbound.isVMess">
+        <p>Uuid: <a-tag color="green">[[ inbound.uuid ]]</a-tag></p>
+        <p>AlterId: <a-tag color="green">[[ inbound.alterId ]]</a-tag></p>
+    </template>
+
+    <template v-if="dbInbound.isVLess">
+        <p>Uuid: <a-tag color="green">[[ inbound.uuid ]]</a-tag></p>
+        <p v-if="inbound.isXTls">Flow: <a-tag color="green">[[ inbound.flow ]]</a-tag></p>
+    </template>
+
+    <template v-if="dbInbound.isTrojan">
+        <p>Mật khẩu: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
+    </template>
+
+    <template v-if="dbInbound.isSS">
+        <p>Mã hóa: <a-tag color="green">[[ inbound.method ]]</a-tag></p>
+        <p>Mật khẩu: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
+    </template>
+
+    <template v-if="dbInbound.isSocks">
+        <p>Tài khoản: <a-tag color="green">[[ inbound.username ]]</a-tag></p>
+        <p>Mật khẩu: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
+    </template>
+
+    <template v-if="dbInbound.isHTTP">
+        <p>Tài khoản: <a-tag color="green">[[ inbound.username ]]</a-tag></p>
+        <p>Mật khẩu: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
+    </template>
+
+    <template v-if="dbInbound.isVMess || dbInbound.isVLess || dbInbound.isTrojan || dbInbound.isSS">
+        {{template "inboundInfoStream"}}
+    </template>
+</div>
+{{end}}
+
+{{define "component/inboundInfo"}}
+<script>
+    Vue.component('inbound-info', {
+        delimiters: ['[[', ']]'],
+        props: ["dbInbound", "inbound"],
+        template: `{{template "component/inboundInfoComponent"}}`,
+    });
+</script>
+{{end}}
