@@ -82,7 +82,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/dominhhieu1405/x-ui-vn/master/install.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -101,7 +101,7 @@ update() {
         fi
         return 0
     fi
-    bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/dominhhieu1405/x-ui-vn/master/install.sh)
     if [[ $? == 0 ]]; then
         echo -e "${green}Cap nhat thanh cong, dang khoi dong lai bang dieu khien${plain}"
         exit 0
@@ -281,7 +281,7 @@ install_bbr() {
 }
 
 update_shell() {
-    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/vaxilu/x-ui/raw/master/x-ui.sh
+    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/dominhhieu1405/x-ui-vn/raw/master/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
         echo -e "${red}Khong the ket noi toi may chu Github de tai xuong, vui long kien tra ket not internet${plain}"
