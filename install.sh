@@ -84,20 +84,20 @@ install_x-ui() {
     cd /usr/local/
 
     if  [ $# == 0 ] ;then
-        last_version=$(curl -Ls "https://api.github.com/repos/vaxilu/x-ui/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        last_version=$(curl -Ls "https://api.github.com/repos/dominhhieu1405/x-ui-vn/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$last_version" ]]; then
             echo -e "${red}Khong the phat hien phien ban x-ui, phien ban nay co the vuot qua gioi han API Github, vui long thu lai sau hoac chi dinh phien ban x-ui de cai dat theo cach thu cong${plain}"
             exit 1
         fi
         echo -e "Phien ban moi nhat cua x-ui: ${last_version}, dang cai dat..."
-        wget -N --no-check-certificate -O /usr/local/x-ui-linux-${arch}.tar.gz https://github.com/vaxilu/x-ui/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz
+        wget -N --no-check-certificate -O /usr/local/x-ui-linux-${arch}.tar.gz https://github.com/dominhhieu1405/x-ui-vn/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz
         if [[ $? -ne 0 ]]; then
             echo -e "${red}Tai xuong x-ui khong thanh cong, vui long dam bao may chu cua ban co the tai xuong tep tu Github${plain}"
             exit 1
         fi
     else
         last_version=$1
-        url="https://github.com/vaxilu/x-ui/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz"
+        url="https://github.com/dominhhieu1405/x-ui-vn/releases/download/${last_version}/x-ui-linux-${arch}.tar.gz"
         echo -e "Bat dau cai dat x-ui v$1"
         wget -N --no-check-certificate -O /usr/local/x-ui-linux-${arch}.tar.gz ${url}
         if [[ $? -ne 0 ]]; then
@@ -115,7 +115,7 @@ install_x-ui() {
     cd x-ui
     chmod +x x-ui bin/xray-linux-${arch}
     cp -f x-ui.service /etc/systemd/system/
-    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/vaxilu/x-ui/main/x-ui.sh
+    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/dominhhieu1405/x-ui-vn/main/x-ui.sh
     chmod +x /usr/bin/x-ui
     systemctl daemon-reload
     systemctl enable x-ui
