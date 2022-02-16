@@ -13,9 +13,14 @@ Việt hóa từ: https://github.com/vaxilu/x-ui/
 
 # Cài đặt và nâng cấp
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/dominhhieu1405/x-ui-vn/master/install.sh)
 ```
-
+## Mở Port
+```
+ufw allow 54321
+ufw allow 443
+ufw allow 80 
+```
 ## Cài đặt và nâng cấp thủ công
 1. Đầu tiên hãy tải xuống gói nén mới nhất từ ​​https://github.com/vaxilu/x-ui/releases, thường chọn kiến ​​trúc `amd64`
 2. Sau đó tải gói nén lên thư mục `/root/` của máy chủ và sử dụng người dùng có quyền `root` để đăng nhập vào máy chủ
