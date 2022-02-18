@@ -36,4 +36,18 @@ thêm 2 dòng:
     vm.swappiness=10
     vm.vfs_cache_pressure=50
 
+## Mở port
+Kích hoạt UFW với lệnh sau:
 
+    sudo ufw enable
+
+Nếu có lỗi, chạy lệnh sau để cài UFW
+
+    sudo apt-get install ufw
+
+Mở port:
+
+    sudo ufw allow [port/protocol]
+Đóng port:
+
+    sudo ufw deny [port/protocol]
