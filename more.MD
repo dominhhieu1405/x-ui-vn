@@ -51,3 +51,23 @@ Mở port:
 Đóng port:
 
     sudo ufw deny [port/protocol]
+
+
+## Khởi động lại Server
+Chạy một trong cách lệnh sau
+
+```
+sudo reboot now
+```
+```
+sudo reboot -f
+```
+```
+sudo shutdown -r now
+```
+```
+sudo shutdown -r -H +0
+```
+```
+sudo systemctl reboot
+```
