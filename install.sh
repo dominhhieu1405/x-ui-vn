@@ -80,7 +80,7 @@ install_base() {
 }
 
 install_x-ui() {
-    systemctl stop x-ui
+    #systemctl stop x-ui
     cd /usr/local/
 
     if  [ $# == 0 ] ;then
