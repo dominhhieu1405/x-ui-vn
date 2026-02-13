@@ -108,6 +108,20 @@ systemctl enable x-ui
 systemctl restart x-ui
 ```
 
+
+## Build release package (`x-ui-linux-<arch>.tar.gz`)
+
+Use the helper script to build release tarballs like `x-ui-linux-arm64.tar.gz`:
+
+```bash
+chmod +x build-release.sh
+./build-release.sh arm64
+# or build both default targets
+./build-release.sh
+```
+
+Generated files are placed in `dist/`.
+
 ## Install using docker
 
 > This docker tutorial and docker image are provided by [dominhhieu1405/x-ui-vn](https://github.com/dominhhieu1405/x-ui-vn)
