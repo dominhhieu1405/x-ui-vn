@@ -5,8 +5,20 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
+#Add some basic function here
+function LOGD() {
+    echo -e "${yellow}[DEG] $* ${plain}"
+}
+
+function LOGE() {
+    echo -e "${red}[ERR] $* ${plain}"
+}
+
+function LOGI() {
+    echo -e "${green}[INF] $* ${plain}"
+}
 # check root
-[[ $EUID -ne 0 ]] && echo -e "${red}Loi: ${plain}Vui long chay bang quyen root!\n" && exit 1
+[[ $EUID -ne 0 ]] && LOGE "ERROR: You must be root to run this script! \n" && exit 1
 
 # check os
 if [[ -f /etc/redhat-release ]]; then
@@ -24,7 +36,7 @@ elif cat /proc/version | grep -Eqi "ubuntu"; then
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
     release="centos"
 else
-    echo -e "${red}He dieu hanh khong duoc ho tro, Vui long su dung he dieu hanh tren he dieu hanh khac!${plain}\n" && exit 1
+    LOGE "check system OS failed,please contact with author! \n" && exit 1
 fi
 
 os_version=""
@@ -39,21 +51,21 @@ fi
 
 if [[ x"${release}" == x"centos" ]]; then
     if [[ ${os_version} -le 6 ]]; then
-        echo -e "${red}Vui long su dung he dieu hanh CentOS 7 tro len!${plain}\n" && exit 1
+        LOGE "please use CentOS 7 or higher version! \n" && exit 1
     fi
 elif [[ x"${release}" == x"ubuntu" ]]; then
     if [[ ${os_version} -lt 16 ]]; then
-        echo -e "${red}Vui long su dung he dieu hanh Ubuntu 16 tro len!${plain}\n" && exit 1
+        LOGE "please use Ubuntu 16 or higher version！\n" && exit 1
     fi
 elif [[ x"${release}" == x"debian" ]]; then
     if [[ ${os_version} -lt 8 ]]; then
-        echo -e "${red}Vui long su dung he dieu hanh Debian 8 tro len!${plain}\n" && exit 1
+        LOGE "please use Debian 8 or higher version！\n" && exit 1
     fi
 fi
 
 confirm() {
     if [[ $# > 1 ]]; then
-        echo && read -p "$1 [默认$2]: " temp
+        echo && read -p "$1 [Default$2]: " temp
         if [[ x"${temp}" == x"" ]]; then
             temp=$2
         fi
@@ -68,7 +80,7 @@ confirm() {
 }
 
 confirm_restart() {
-    confirm "Ban co khoi dong lai bang dieu kien khong? No cung se khoi dong lai xray" "y"
+    confirm "Restart the panel, Attention: Restarting the panel will also restart xray" "y"
     if [[ $? == 0 ]]; then
         restart
     else
@@ -77,12 +89,12 @@ confirm_restart() {
 }
 
 before_show_menu() {
-    echo && echo -n -e "${yellow}Nhan [ENTER] de quay lai menu chinh: ${plain}" && read temp
+    echo && echo -n -e "${yellow}Press enter to return to the main menu: ${plain}" && read temp
     show_menu
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/dominhhieu1405/x-ui-vn/master/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/hossinasaadi/x-ui/main/install.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -93,23 +105,23 @@ install() {
 }
 
 update() {
-    confirm "Chuc nang nay se cap nhat phien ban moi nhat, du lieu se khong bi mat. Ban chac chan chu?" "n"
+    confirm "This function will forcefully reinstall the latest version, and the data will not be lost. Do you want to continue?" "n"
     if [[ $? != 0 ]]; then
-        echo -e "${red}Da huy${plain}"
+        LOGE "Cancelled"
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
         return 0
     fi
-    bash <(curl -Ls https://raw.githubusercontent.com/dominhhieu1405/x-ui-vn/master/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/hossinasaadi/x-ui/main/install.sh)
     if [[ $? == 0 ]]; then
-        echo -e "${green}Cap nhat thanh cong, dang khoi dong lai bang dieu khien${plain}"
+        LOGI "Update is complete, Panel has automatically restarted "
         exit 0
     fi
 }
 
 uninstall() {
-    confirm "Ban chac chan muon go cai dat chu? No cung se go xray" "n"
+    confirm "Are you sure you want to uninstall the panel? xray will also uninstalled!" "n"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -125,7 +137,7 @@ uninstall() {
     rm /usr/local/x-ui/ -rf
 
     echo ""
-    echo -e "Da go cai dat. Neu ban muon xua menu nay, hay thoat ra va chay lenh ${green}rm /usr/bin/x-ui -f${plain}"
+    echo -e "Uninstalled Successfully，If you want to remove this script，then after exiting the script run ${green}rm /usr/bin/x-ui -f${plain} to delete it."
     echo ""
 
     if [[ $# == 0 ]]; then
@@ -134,7 +146,7 @@ uninstall() {
 }
 
 reset_user() {
-    confirm "Ban chac chan muon dat lai tai khoan admin chu" "n"
+    confirm "Reset your username and password to admin?" "n"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -142,12 +154,12 @@ reset_user() {
         return 0
     fi
     /usr/local/x-ui/x-ui setting -username admin -password admin
-    echo -e "Tai khoan va mat khau da duoc dat lai thanh admin, vui long khoi dong lai bang dieu khien"
+    echo -e "Username and password have been reset to ${green}admin${plain}，Please restart the panel now."
     confirm_restart
 }
 
 reset_config() {
-    confirm "Ban chac chan muon dat lai bang dieu khien chu, du lieu tai khoan se khong bi xoa!" "n"
+    confirm "Are you sure you want to reset all panel settings，Account data will not be lost，Username and password will not change" "n"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -155,18 +167,27 @@ reset_config() {
         return 0
     fi
     /usr/local/x-ui/x-ui setting -reset
-    echo -e "Da dat lai bang dieu khien, truy cap cong ${green}54321${plain} de su dung"
+    echo -e "All panel settings have been reset to default，Please restart the panel now，and use the default ${green}54321${plain} Port to Access the web Panel"
     confirm_restart
 }
 
+check_config() {
+    info=$(/usr/local/x-ui/x-ui setting -show true)
+    if [[ $? != 0 ]]; then
+        LOGE "get current settings error,please check logs"
+        show_menu
+    fi
+    LOGI "${info}"
+}
+
 set_port() {
-    echo && echo -n -e "Nhap so cong[1-65535]: " && read port
+    echo && echo -n -e "Enter port number[1-65535]: " && read port
     if [[ -z "${port}" ]]; then
-        echo -e "${yellow}Da huy${plain}"
+        LOGD "Cancelled"
         before_show_menu
     else
         /usr/local/x-ui/x-ui setting -port ${port}
-        echo -e "Sau khi thay doi cong, hay khoi dong lai bang dieu khien va truy cap bang cong ${green}${port}${plain} de su dung"
+        echo -e "The port is set，Please restart the panel now，and use the new port ${green}${port}${plain} to access web panel"
         confirm_restart
     fi
 }
@@ -175,15 +196,15 @@ start() {
     check_status
     if [[ $? == 0 ]]; then
         echo ""
-        echo -e "${green}Da chay bang dieu, neu muon khoi dong lai hay chon khoi dong lai${plain}"
+        LOGI "Panel is running，No need to start again，If you need to restart, please select restart"
     else
         systemctl start x-ui
-        sleep 3
+        sleep 2
         check_status
         if [[ $? == 0 ]]; then
-            echo -e "${green}Da khoi dong x-ui${plain}"
+            LOGI "x-ui Started Successfully"
         else
-            echo -e "${red}Khoi dong that bai, vui long thu lai sau${plain}"
+            LOGE "panel Failed to start，Probably because it takes longer than two seconds to start，Please check the log information later"
         fi
     fi
 
@@ -196,15 +217,15 @@ stop() {
     check_status
     if [[ $? == 1 ]]; then
         echo ""
-        echo -e "${green}Da tat roi, khong the tat tiep${plain}"
+        LOGI "Panel stopped，No need to stop again!"
     else
         systemctl stop x-ui
-        sleep 3
+        sleep 2
         check_status
         if [[ $? == 1 ]]; then
-            echo -e "${green}Da dung x-ui va xray${plain}"
+            LOGI "x-ui and xray stopped successfully"
         else
-            echo -e "${red}Khong the tat, vui long thu lai sau${plain}"
+            LOGE "Panel stop failed，Probably because the stop time exceeds two seconds，Please check the log information later"
         fi
     fi
 
@@ -215,12 +236,12 @@ stop() {
 
 restart() {
     systemctl restart x-ui
-    sleep 3
+    sleep 2
     check_status
     if [[ $? == 0 ]]; then
-        echo -e "${green}Khoi dong lai thanh cong{plain}"
+        LOGI "x-ui and xray Restarted successfully"
     else
-        echo -e "${red}Khoi dong lai that bai, vui long thu lai sau${plain}"
+        LOGE "Panel restart failed，Probably because it takes longer than two seconds to start，Please check the log information later"
     fi
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -237,9 +258,9 @@ status() {
 enable() {
     systemctl enable x-ui
     if [[ $? == 0 ]]; then
-        echo -e "${green}Da dat che do tu dong bat x-ui{plain}"
+        LOGI "x-ui Set to boot automatically on startup successfully"
     else
-        echo -e "${red}Cau dat that bai{plain}"
+        LOGE "x-ui Failed to set Autostart"
     fi
 
     if [[ $# == 0 ]]; then
@@ -250,9 +271,9 @@ enable() {
 disable() {
     systemctl disable x-ui
     if [[ $? == 0 ]]; then
-        echo -e "${green}Da tat che do tu dong chay x-ui${plain}"
+        LOGI "x-ui Autostart Cancelled successfully"
     else
-        echo -e "${red}Tat tu dong chay x-ui that bai${plain}"
+        LOGE "x-ui Failed to cancel autostart"
     fi
 
     if [[ $# == 0 ]]; then
@@ -281,14 +302,14 @@ install_bbr() {
 }
 
 update_shell() {
-    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/dominhhieu1405/x-ui-vn/raw/master/x-ui.sh
+    wget -O /usr/bin/x-ui -N --no-check-certificate https://github.com/hossinasaadi/x-ui/raw/main/x-ui.sh
     if [[ $? != 0 ]]; then
         echo ""
-        echo -e "${red}Khong the ket noi toi may chu Github de tai xuong, vui long kien tra ket not internet${plain}"
+        LOGE "Failed to download script，Please check whether the machine can connect Github"
         before_show_menu
     else
         chmod +x /usr/bin/x-ui
-        echo -e "${green}Nang cap x-ui thanh cong, vui long khoi dong lai bang dieu khien${plain}" && exit 0
+        LOGI "Upgrade script succeeded，Please rerun the script" && exit 0
     fi
 }
 
@@ -310,7 +331,7 @@ check_enabled() {
     if [[ x"${temp}" == x"enabled" ]]; then
         return 0
     else
-        return 1;
+        return 1
     fi
 }
 
@@ -318,7 +339,7 @@ check_uninstall() {
     check_status
     if [[ $? != 2 ]]; then
         echo ""
-        echo -e "${red}Da cai dat roi, khong can cai dat tiep${plain}"
+        LOGE "Panel installed，Please do not reinstall"
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -332,7 +353,7 @@ check_install() {
     check_status
     if [[ $? == 2 ]]; then
         echo ""
-        echo -e "${red}Vui long cai dat bang dieu khien truoc${plain}"
+        LOGE "Please install the panel first"
         if [[ $# == 0 ]]; then
             before_show_menu
         fi
@@ -345,16 +366,17 @@ check_install() {
 show_status() {
     check_status
     case $? in
-        0)
-            echo -e "Trang thai: ${green}Dang chay${plain}"
-            show_enable_status
-            ;;
-        1)
-            echo -e "Trang thai: ${yellow}Khong chay${plain}"
-            show_enable_status
-            ;;
-        2)
-            echo -e "Trang thai: ${red}Chua cai dat${plain}"
+    0)
+        echo -e "Panel state: ${green}Runing${plain}"
+        show_enable_status
+        ;;
+    1)
+        echo -e "Panel state: ${yellow}Not Running${plain}"
+        show_enable_status
+        ;;
+    2)
+        echo -e "Panel state: ${red}Not Installed${plain}"
+        ;;
     esac
     show_xray_status
 }
@@ -362,9 +384,9 @@ show_status() {
 show_enable_status() {
     check_enabled
     if [[ $? == 0 ]]; then
-        echo -e "Tu dong khoi chay: ${green}Co${plain}"
+        echo -e "Start automatically: ${green}Yes${plain}"
     else
-        echo -e "Tu dong khoi chay: ${red}Khong${plain}"
+        echo -e "Start automatically: ${red}No${plain}"
     fi
 }
 
@@ -380,119 +402,228 @@ check_xray_status() {
 show_xray_status() {
     check_xray_status
     if [[ $? == 0 ]]; then
-        echo -e "Trang thai xray: ${green}Dang chay${plain}"
+        echo -e "xray state: ${green}Runing${plain}"
     else
-        echo -e "Trang thai xray: ${red}Khong chay${plain}"
+        echo -e "xray state: ${red}Not Running${plain}"
+    fi
+}
+
+ssl_cert_issue() {
+    echo -E ""
+    LOGD "******Instructions for use******"
+    LOGI "This Acme script requires the following data:"
+    LOGI "1.Cloudflare Registered e-mail"
+    LOGI "2.Cloudflare Global API Key"
+    LOGI "3.The domain name that has been resolved dns to the current server by Cloudflare"
+    LOGI "4.The script applies for a certificate. The default installation path is /root/cert "
+    confirm "Confirmed?[y/n]" "y"
+    if [ $? -eq 0 ]; then
+        cd ~
+        LOGI "Install Acme-Script"
+        curl https://get.acme.sh | sh
+        if [ $? -ne 0 ]; then
+            LOGE "Failed to install acme script"
+            exit 1
+        fi
+        CF_Domain=""
+        CF_GlobalKey=""
+        CF_AccountEmail=""
+        certPath=/root/cert
+        if [ ! -d "$certPath" ]; then
+            mkdir $certPath
+        else
+            rm -rf $certPath
+            mkdir $certPath
+        fi
+        LOGD "Please set a domain name:"
+        read -p "Input your domain here:" CF_Domain
+        LOGD "Your domain name is set to:${CF_Domain}"
+        LOGD "Please set the API key:"
+        read -p "Input your key here:" CF_GlobalKey
+        LOGD "Your API key is:${CF_GlobalKey}"
+        LOGD "Please set up registered email:"
+        read -p "Input your email here:" CF_AccountEmail
+        LOGD "Your registered email address is:${CF_AccountEmail}"
+        ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+        if [ $? -ne 0 ]; then
+            LOGE "Default CA, Lets'Encrypt fail, script exiting..."
+            exit 1
+        fi
+        export CF_Key="${CF_GlobalKey}"
+        export CF_Email=${CF_AccountEmail}
+        ~/.acme.sh/acme.sh --issue --dns dns_cf -d ${CF_Domain} -d *.${CF_Domain} --log
+        if [ $? -ne 0 ]; then
+            LOGE "Certificate issuance failed, script exiting..."
+            exit 1
+        else
+            LOGI "Certificate issued Successfully, Installing..."
+        fi
+        ~/.acme.sh/acme.sh --installcert -d ${CF_Domain} -d *.${CF_Domain} --ca-file /root/cert/ca.cer \
+        --cert-file /root/cert/${CF_Domain}.cer --key-file /root/cert/${CF_Domain}.key \
+        --fullchain-file /root/cert/fullchain.cer
+        if [ $? -ne 0 ]; then
+            LOGE "Certificate installation failed, script exiting..."
+            exit 1
+        else
+            LOGI "Certificate installed Successfully,Turning on automatic updates..."
+        fi
+        ~/.acme.sh/acme.sh --upgrade --auto-upgrade
+        if [ $? -ne 0 ]; then
+            LOGE "Auto update setup Failed, script exiting..."
+            ls -lah cert
+            chmod 755 $certPath
+            exit 1
+        else
+            LOGI "The certificate is installed and auto-renewal is turned on, Specific information is as follows"
+            ls -lah cert
+            chmod 755 $certPath
+        fi
+    else
+        show_menu
     fi
 }
 
 show_usage() {
-    echo "Cach su dung tap lenh quan ly x-ui:"
-    echo "----------------------------------------------"
-    echo "x-ui              - Mo menu quan ly x-ui"
-    echo "x-ui start        - Khoi chay x-ui"
-    echo "x-ui stop         - Tam dung x-ui"
-    echo "x-ui restart      - Khoi dong lai x-ui"
-    echo "x-ui status       - Xem trang thai x-ui"
-    echo "x-ui enable       - Tu dong chay x-ui"
-    echo "x-ui disable      - Tat tu dong chay x-ui"
-    echo "x-ui log          - Xem nhat ky x-ui"
-    echo "x-ui v2-ui        - Di chuyen du lieu tu v2-ui sang x-ui"
-    echo "x-ui update       - Cap nhat x-ui"
-    echo "x-ui install      - Cai dat x-ui"
-    echo "x-ui uninstall    - Go cai dat x-ui"
+    echo "x-ui control menu usages: "
+    echo "------------------------------------------"
+    echo "x-ui              - Enter     Admin menu"
+    echo "x-ui start        - Start     x-ui"
+    echo "x-ui stop         - Stop      x-ui"
+    echo "x-ui restart      - Restart   x-ui"
+    echo "x-ui status       - Show      x-ui status"
+    echo "x-ui enable       - Enable    x-ui on system startup"
+    echo "x-ui disable      - Disable   x-ui on system startup"
+    echo "x-ui log          - Check     x-ui logs"
+    echo "x-ui v2-ui        - Migrate   v2-ui Account data to x-ui"
+    echo "x-ui update       - Update    x-ui"
+    echo "x-ui install      - Install   x-ui"
+    echo "x-ui uninstall    - Uninstall x-ui"
     echo "------------------------------------------"
 }
 
 show_menu() {
     echo -e "
-  ${green}Bang quan ly x-ui${plain}
-  ${green}0.${plain} Thoat
+  ${green}x-ui Panel Management Script${plain}
+  ${green}0.${plain} exit script
 ————————————————
-  ${green}1.${plain} Cai dat x-ui
-  ${green}2.${plain} Cap nhat x-ui
-  ${green}3.${plain} Go cai dat x-ui
+  ${green}1.${plain} Install x-ui
+  ${green}2.${plain} Update x-ui
+  ${green}3.${plain} Uninstall x-ui
 ————————————————
-  ${green}4.${plain} Dat lai tai khoan admin
-  ${green}5.${plain} Dat lai cai dat
-  ${green}6.${plain} Thay doi cong
+  ${green}4.${plain} Reset username and password
+  ${green}5.${plain} Reset panel settings
+  ${green}6.${plain} Set panel port
+  ${green}7.${plain} View current panel settings
 ————————————————
-  ${green}7.${plain} Khoi dong x-ui
-  ${green}8.${plain} Tam dung x-ui
-  ${green}9.${plain} Khoi dong lai x-ui
- ${green}10.${plain} Trang thai x-ui
- ${green}11.${plain} Nhat ky x-ui
+  ${green}8.${plain} Start x-ui
+  ${green}9.${plain} stop x-ui
+  ${green}10.${plain} Reboot x-ui
+  ${green}11.${plain} Check x-ui state
+  ${green}12.${plain} Check x-ui logs
 ————————————————
- ${green}12.${plain} Bat tu dong chay x-ui
- ${green}13.${plain} Tat tu dong chay x-ui
+  ${green}13.${plain} set x-ui Autostart
+  ${green}14.${plain} Cancel x-ui Autostart
 ————————————————
- ${green}14.${plain} Tu dong cai dat (New)
+  ${green}15.${plain} 一A key installation bbr (latest kernel)
+  ${green}16.${plain} 一Apply for an SSL certificate with one click(acme script)
  "
     show_status
-    echo && read -p "Lua chon [0-14]: " num
+    echo && read -p "Please enter your selection [0-16]: " num
 
     case "${num}" in
-        0) exit 0
+    0)
+        exit 0
         ;;
-        1) check_uninstall && install
+    1)
+        check_uninstall && install
         ;;
-        2) check_install && update
+    2)
+        check_install && update
         ;;
-        3) check_install && uninstall
+    3)
+        check_install && uninstall
         ;;
-        4) check_install && reset_user
+    4)
+        check_install && reset_user
         ;;
-        5) check_install && reset_config
+    5)
+        check_install && reset_config
         ;;
-        6) check_install && set_port
+    6)
+        check_install && set_port
         ;;
-        7) check_install && start
+    7)
+        check_install && check_config
         ;;
-        8) check_install && stop
+    8)
+        check_install && start
         ;;
-        9) check_install && restart
+    9)
+        check_install && stop
         ;;
-        10) check_install && status
+    10)
+        check_install && restart
         ;;
-        11) check_install && show_log
+    11)
+        check_install && status
         ;;
-        12) check_install && enable
+    12)
+        check_install && show_log
         ;;
-        13) check_install && disable
+    13)
+        check_install && enable
         ;;
-        14) install_bbr
+    14)
+        check_install && disable
         ;;
-        *) echo -e "${red}Vui long nhap so chinh xac [0-14]${plain}"
+    15)
+        install_bbr
+        ;;
+    16)
+        ssl_cert_issue
+        ;;
+    *)
+        LOGE "Please enter the correct number [0-16]"
         ;;
     esac
 }
 
-
 if [[ $# > 0 ]]; then
     case $1 in
-        "start") check_install 0 && start 0
+    "start")
+        check_install 0 && start 0
         ;;
-        "stop") check_install 0 && stop 0
+    "stop")
+        check_install 0 && stop 0
         ;;
-        "restart") check_install 0 && restart 0
+    "restart")
+        check_install 0 && restart 0
         ;;
-        "status") check_install 0 && status 0
+    "status")
+        check_install 0 && status 0
         ;;
-        "enable") check_install 0 && enable 0
+    "enable")
+        check_install 0 && enable 0
         ;;
-        "disable") check_install 0 && disable 0
+    "disable")
+        check_install 0 && disable 0
         ;;
-        "log") check_install 0 && show_log 0
+    "log")
+        check_install 0 && show_log 0
         ;;
-        "v2-ui") check_install 0 && migrate_v2_ui 0
+    "v2-ui")
+        check_install 0 && migrate_v2_ui 0
         ;;
-        "update") check_install 0 && update 0
+    "update")
+        check_install 0 && update 0
         ;;
-        "install") check_uninstall 0 && install 0
+    "install")
+        check_uninstall 0 && install 0
         ;;
-        "uninstall") check_install 0 && uninstall 0
+    "uninstall")
+        check_install 0 && uninstall 0
         ;;
-        *) show_usage
+    *) show_usage ;;
     esac
 else
     show_menu
