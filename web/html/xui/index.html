@@ -35,7 +35,7 @@
                                                     :stroke-color="status.mem.color"
                                                     :percent="status.mem.percent"></a-progress>
                                         <div>
-                                            RAM: [[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]
+                                            {{ i18n "pages.index.memory"}}: [[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]
                                         </div>
                                     </a-col>
                                 </a-row>
@@ -47,7 +47,7 @@
                                                     :stroke-color="status.swap.color"
                                                     :percent="status.swap.percent"></a-progress>
                                         <div>
-                                            Swap: [[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]
+                                            swap: [[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]
                                         </div>
                                     </a-col>
                                     <a-col :span="12" style="text-align: center">
@@ -55,7 +55,7 @@
                                                     :stroke-color="status.disk.color"
                                                     :percent="status.disk.percent"></a-progress>
                                         <div>
-                                            Bộ nhớ: [[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]
+                                            {{ i18n "pages.index.hard"}}: [[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]
                                         </div>
                                     </a-col>
                                 </a-row>
@@ -68,7 +68,7 @@
                 <a-row>
                     <a-col :sm="24" :md="12">
                         <a-card hoverable>
-                            Trạng thái xray:
+                            {{ i18n "pages.index.xrayStatus" }}:
                             <a-tag :color="status.xray.color">[[ status.xray.state ]]</a-tag>
                             <a-tooltip v-if="status.xray.state === State.Error">
                                 <template slot="title">
@@ -77,16 +77,16 @@
                                 <a-icon type="question-circle" theme="filled"></a-icon>
                             </a-tooltip>
                             <a-tag color="green" @click="openSelectV2rayVersion">[[ status.xray.version ]]</a-tag>
-                            <a-tag color="blue" @click="openSelectV2rayVersion">Đổi phiên bản</a-tag>
+                            <a-tag color="blue" @click="openSelectV2rayVersion">{{ i18n "pages.index.xraySwitch"}}</a-tag>
                         </a-card>
                     </a-col>
                     <a-col :sm="24" :md="12">
                         <a-card hoverable>
-                            Giờ hoạt động:
+                            {{ i18n "pages.index.operationHours" }}:
                             <a-tag color="#87d068">[[ formatSecond(status.uptime) ]]</a-tag>
                             <a-tooltip>
                                 <template slot="title">
-                                    Thời gian chạy của hệ thống kể từ khi nó được khởi động
+                                    {{ i18n "pages.index.operationHoursDesc" }}
                                 </template>
                                 <a-icon type="question-circle" theme="filled"></a-icon>
                             </a-tooltip>
@@ -94,15 +94,15 @@
                     </a-col>
                     <a-col :sm="24" :md="12">
                         <a-card hoverable>
-                            Tải hệ thống: [[ status.loads[0] ]] | [[ status.loads[1] ]] | [[ status.loads[2] ]]
+                            {{ i18n "pages.index.systemLoad" }}: [[ status.loads[0] ]] | [[ status.loads[1] ]] | [[ status.loads[2] ]]
                         </a-card>
                     </a-col>
                     <a-col :sm="24" :md="12">
                         <a-card hoverable>
-                            Kết nối tcp/udp: [[ status.tcpCount ]] / [[ status.udpCount ]]
+                            tcp / udp {{ i18n "pages.index.connectionCount" }}: [[ status.tcpCount ]] / [[ status.udpCount ]]
                             <a-tooltip>
                                 <template slot="title">
-                                    Tổng số kết nối
+                                    {{ i18n "pages.index.connectionCountDesc" }}
                                 </template>
                                 <a-icon type="question-circle" theme="filled"></a-icon>
                             </a-tooltip>
@@ -116,7 +116,7 @@
                                     [[ sizeFormat(status.netIO.up) ]] / S
                                     <a-tooltip>
                                         <template slot="title">
-                                            Tốc độ tải lên
+                                            {{ i18n "pages.index.upSpeed" }}
                                         </template>
                                         <a-icon type="question-circle" theme="filled"></a-icon>
                                     </a-tooltip>
@@ -126,7 +126,7 @@
                                     [[ sizeFormat(status.netIO.down) ]] / S
                                     <a-tooltip>
                                         <template slot="title">
-                                            Tốc độ tải xuống
+                                            {{ i18n "pages.index.downSpeed" }}
                                         </template>
                                         <a-icon type="question-circle" theme="filled"></a-icon>
                                     </a-tooltip>
@@ -142,7 +142,7 @@
                                     [[ sizeFormat(status.netTraffic.sent) ]]
                                     <a-tooltip>
                                         <template slot="title">
-                                            Tổng lưu lượng tải lên
+                                            {{ i18n "pages.index.totalSent" }}
                                         </template>
                                         <a-icon type="question-circle" theme="filled"></a-icon>
                                     </a-tooltip>
@@ -152,7 +152,7 @@
                                     [[ sizeFormat(status.netTraffic.recv) ]]
                                     <a-tooltip>
                                         <template slot="title">
-                                            Tổng lưu lượng tải xuống
+                                            {{ i18n "pages.index.totalReceive" }}
                                         </template>
                                         <a-icon type="question-circle" theme="filled"></a-icon>
                                     </a-tooltip>
@@ -164,11 +164,11 @@
             </transition>
         </a-layout-content>
     </a-layout>
-    <a-modal id="version-modal" v-model="versionModal.visible" title="Đổi phiên bản"
+    <a-modal id="version-modal" v-model="versionModal.visible" title='{{ i18n "pages.index.xraySwitch" }}'
              :closable="true" @ok="() => versionModal.visible = false"
-             ok-text="OK" cancel-text="Hủy">
-        <h2>Nhấp vào phiên bản bạn muốn đổi</h2>
-        <h2>Vui lòng chọn cẩn thận, phiên bản cũ có thể không tương thích với cấu hình</h2>
+             ok-text='{{ i18n "confirm" }}' cancel-text='{{ i18n "cancel"}}'>
+        <h2>{{ i18n "pages.index.xraySwitchClick"}}</h2>
+        <h2>{{ i18n "pages.index.xraySwitchClickDesk"}}</h2>
         <template v-for="version, index in versionModal.versions">
             <a-tag :color="index % 2 == 0 ? 'blue' : 'green'"
                    style="margin: 10px" @click="switchV2rayVersion(version)">
@@ -277,10 +277,10 @@
             status: new Status(),
             versionModal,
             spinning: false,
-            loadingTip: 'Đang tải',
+            loadingTip: '{{ i18n "loading"}}',
         },
         methods: {
-            loading(spinning, tip = 'Đang tải') {
+            loading(spinning, tip = '{{ i18n "loading"}}') {
                 this.spinning = spinning;
                 this.loadingTip = tip;
             },
@@ -304,13 +304,13 @@
             },
             switchV2rayVersion(version) {
                 this.$confirm({
-                    title: 'Đổi phiên bản xray',
-                    content: 'Bạn chắc chắn muốn chuyển phiên bản xray sang' + ` ${version}?`,
-                    okText: 'OK',
-                    cancelText: 'Hủy',
+                    title: '{{ i18n "pages.index.xraySwitchVersionDialog"}}',
+                    content: '{{ i18n "pages.index.xraySwitchVersionDialogDesc"}}' + ` ${version}?`,
+                    okText: '{{ i18n "confirm"}}',
+                    cancelText: '{{ i18n "cancel"}}',
                     onOk: async () => {
                         versionModal.hide();
-                        this.loading(true, 'Trong quá trình cài đặt, vui lòng không làm mới trang này');
+                        this.loading(true, '{{ i18n "pages.index.dontRefreshh"}}');
                         await HttpUtil.post(`/server/installXray/${version}`);
                         this.loading(false);
                     },

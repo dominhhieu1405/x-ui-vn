@@ -4,13 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"embed"
-	"github.com/BurntSushi/toml"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/robfig/cron/v3"
-	"golang.org/x/text/language"
 	"html/template"
 	"io"
 	"io/fs"
@@ -27,6 +20,14 @@ import (
 	"x-ui/web/job"
 	"x-ui/web/network"
 	"x-ui/web/service"
+
+	"github.com/BurntSushi/toml"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/robfig/cron/v3"
+	"golang.org/x/text/language"
 )
 
 //go:embed assets/*
@@ -83,6 +84,7 @@ type Server struct {
 	index  *controller.IndexController
 	server *controller.ServerController
 	xui    *controller.XUIController
+	api    *controller.APIController
 
 	xrayService    service.XrayService
 	settingService service.SettingService
@@ -205,6 +207,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	s.index = controller.NewIndexController(g)
 	s.server = controller.NewServerController(g)
 	s.xui = controller.NewXUIController(g)
+	s.api = controller.NewAPIController(g)
 
 	return engine, nil
 }
@@ -253,7 +256,7 @@ func (s *Server) initI18n(engine *gin.Engine) error {
 
 	var localizer *i18n.Localizer
 
-	engine.FuncMap["i18n"] = func(key string, params ...string) (string, error) {
+	I18n := func(key string, params ...string) (string, error) {
 		names := findI18nParamNames(key)
 		if len(names) != len(params) {
 			return "", common.NewError("find names:", names, "---------- params:", params, "---------- num not equal")
@@ -268,10 +271,22 @@ func (s *Server) initI18n(engine *gin.Engine) error {
 		})
 	}
 
+	engine.FuncMap["i18n"]  = I18n;
+
 	engine.Use(func(c *gin.Context) {
-		accept := c.GetHeader("Accept-Language")
-		localizer = i18n.NewLocalizer(bundle, accept)
+		//accept := c.GetHeader("Accept-Language")
+
+		var lang string
+
+		if cookie, err := c.Request.Cookie("lang"); err == nil {
+			lang = cookie.Value
+		} else {
+			lang = c.GetHeader("Accept-Language")
+		}
+
+		localizer = i18n.NewLocalizer(bundle, lang)
 		c.Set("localizer", localizer)
+		c.Set("I18n" , I18n)
 		c.Next()
 	})
 
@@ -294,9 +309,34 @@ func (s *Server) startTask() {
 
 	// 每 30 秒检查一次 inbound 流量超出和到期的情况
 	s.cron.AddJob("@every 30s", job.NewCheckInboundJob())
+
+	// check client ips from log file every 10 sec
+	s.cron.AddJob("@every 10s", job.NewCheckClientIpJob())
+
+	// 每一天提示一次流量情况,上海时间8点30
+	var entry cron.EntryID
+	isTgbotenabled, err := s.settingService.GetTgbotenabled()
+	if (err == nil) && (isTgbotenabled) {
+		runtime, err := s.settingService.GetTgbotRuntime()
+		if err != nil || runtime == "" {
+			logger.Errorf("Add NewStatsNotifyJob error[%s],Runtime[%s] invalid,wil run default", err, runtime)
+			runtime = "@daily"
+		}
+		logger.Infof("Tg notify enabled,run at %s", runtime)
+		entry, err = s.cron.AddJob(runtime, job.NewStatsNotifyJob())
+		if err != nil {
+			logger.Warning("Add NewStatsNotifyJob error", err)
+			return
+		}
+		// listen for TG bot income messages
+		go job.NewStatsNotifyJob().OnReceive()
+	} else {
+		s.cron.Remove(entry)
+	}
 }
 
 func (s *Server) Start() (err error) {
+	//这是一个匿名函数，没没有函数名
 	defer func() {
 		if err != nil {
 			s.Stop()
@@ -348,6 +388,7 @@ func (s *Server) Start() (err error) {
 		listener = network.NewAutoHttpsListener(listener)
 		listener = tls.NewListener(listener, c)
 	}
+
 	if certFile != "" || keyFile != "" {
 		logger.Info("web server run https on", listener.Addr())
 	} else {

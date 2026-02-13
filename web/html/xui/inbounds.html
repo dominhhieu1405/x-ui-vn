@@ -20,22 +20,22 @@
             <a-spin :spinning="spinning" :delay="500" tip="loading">
                 <transition name="list" appear>
                     <a-tag v-if="false" color="red" style="margin-bottom: 10px">
-                        Vui lòng truy cập cài đặt bảng điều khiển để sửa đổi tên người dùng và mật khẩu, nếu không có thể có nguy cơ rò rỉ thông tin tài khoản
+                        Please go to the panel settings as soon as possible to modify the username and password, otherwise there may be a risk of leaking account information
                     </a-tag>
                 </transition>
                 <transition name="list" appear>
                     <a-card hoverable style="margin-bottom: 20px;">
                         <a-row>
                             <a-col :xs="24" :sm="24" :lg="12">
-                                Tổng số lượt tải lên / tải xuống: 
+                                {{ i18n "pages.inbounds.totalDownUp" }}：
                                 <a-tag color="green">[[ sizeFormat(total.up) ]] / [[ sizeFormat(total.down) ]]</a-tag>
                             </a-col>
                             <a-col :xs="24" :sm="24" :lg="12">
-                                Tổng cộng: 
+                                {{ i18n "pages.inbounds.totalUsage" }}：
                                 <a-tag color="green">[[ sizeFormat(total.up + total.down) ]]</a-tag>
                             </a-col>
                             <a-col :xs="24" :sm="24" :lg="12">
-                                Số lượng đầu vào: 
+                                {{ i18n "pages.inbounds.inboundCount" }}：
                                 <a-tag color="green">[[ dbInbounds.length ]]</a-tag>
                             </a-col>
                         </a-row>
@@ -46,7 +46,7 @@
                         <div slot="title">
                             <a-button type="primary" icon="plus" @click="openAddInbound"></a-button>
                         </div>
-<!--                        <a-input v-model="searchKey" placeholder="Tìm kiếm" autofocus style="max-width: 300px"></a-input>-->
+<!--                        <a-input v-model="searchKey" placeholder="搜索" autofocus style="max-width: 300px"></a-input>-->
                         <a-table :columns="columns" :row-key="dbInbound => dbInbound.id"
                                  :data-source="dbInbounds"
                                  :loading="spinning" :scroll="{ x: 1500 }"
@@ -55,20 +55,22 @@
                                  @change="() => getDBInbounds()">
                             <template slot="action" slot-scope="text, dbInbound">
                                 <a-dropdown :trigger="['click']">
-                                    <a @click="e => e.preventDefault()">Vận hành</a>
+                                    <a @click="e => e.preventDefault()">{{ i18n "pages.inbounds.operate" }}</a>
                                     <a-menu slot="overlay" @click="a => clickAction(a, dbInbound)">
                                         <a-menu-item v-if="dbInbound.hasLink()" key="qrcode">
-                                            <a-icon type="qrcode"></a-icon>Mã QR
+                                            <a-icon type="qrcode"></a-icon>
+                                            {{ i18n "qrCode" }}
                                         </a-menu-item>
                                         <a-menu-item key="edit">
-                                            <a-icon type="edit"></a-icon>Chỉnh sửa
+                                            <a-icon type="edit"></a-icon>
+                                            {{ i18n "edit" }}
                                         </a-menu-item>
                                         <a-menu-item key="resetTraffic">
-                                            <a-icon type="retweet"></a-icon>Đặt lại luồng
+                                            <a-icon type="retweet"></a-icon> {{ i18n "pages.inbounds.resetTraffic" }}
                                         </a-menu-item>
                                         <a-menu-item key="delete">
                                             <span style="color: #FF4D4F">
-                                                <a-icon type="delete"></a-icon>Xóa
+                                                <a-icon type="delete"></a-icon> {{ i18n "delete"}}
                                             </span>
                                         </a-menu-item>
                                     </a-menu>
@@ -83,10 +85,10 @@
                                     <a-tag v-if="dbInbound.up + dbInbound.down < dbInbound.total" color="cyan">[[ sizeFormat(dbInbound.total) ]]</a-tag>
                                     <a-tag v-else color="red">[[ sizeFormat(dbInbound.total) ]]</a-tag>
                                 </template>
-                                <a-tag v-else color="green">Vô hạn</a-tag>
+                                <a-tag v-else color="green">{{ i18n "unlimited" }}</a-tag>
                             </template>
                             <template slot="settings" slot-scope="text, dbInbound">
-                                <a-button type="link" @click="showInfo(dbInbound)">Kiểm tra</a-button>
+                                <a-button type="link" @click="showInfo(dbInbound)">{{ i18n "check" }}</a-button>
                             </template>
                             <template slot="stream" slot-scope="text, dbInbound, index">
                                 <template v-if="dbInbound.isVMess || dbInbound.isVLess || dbInbound.isTrojan || dbInbound.isSS">
@@ -94,7 +96,7 @@
                                     <a-tag v-if="inbounds[index].stream.isTls" color="blue">tls</a-tag>
                                     <a-tag v-if="inbounds[index].stream.isXTls" color="blue">xtls</a-tag>
                                 </template>
-                                <template v-else>none</template>
+                                <template v-else>{{ i18n "none" }}</template>
                             </template>
                             <template slot="enable" slot-scope="text, dbInbound">
                                 <a-switch v-model="dbInbound.enable" @change="switchEnable(dbInbound)"></a-switch>
@@ -108,7 +110,7 @@
                                         [[ DateUtil.formatMillis(dbInbound.expiryTime) ]]
                                     </a-tag>
                                 </template>
-                                <a-tag v-else color="green">Vô thời hạn</a-tag>
+                                <a-tag v-else color="green">{{ i18n "indefinitely" }}</a-tag>
                             </template>
                         </a-table>
                     </a-card>
@@ -121,52 +123,52 @@
 <script>
 
     const columns = [{
-        title: "Vận hành",
+        title: '{{ i18n "pages.inbounds.operate" }}',
         align: 'center',
         width: 30,
         scopedSlots: { customRender: 'action' },
     }, {
-        title: "Cho phép",
+        title: '{{ i18n "pages.inbounds.enable" }}',
         align: 'center',
         width: 40,
         scopedSlots: { customRender: 'enable' },
     }, {
-        title: "id",
+        title: "Id",
         align: 'center',
         dataIndex: "id",
         width: 30,
     }, {
-        title: "Nhận xét",
+        title: '{{ i18n "pages.inbounds.remark" }}',
         align: 'center',
         width: 100,
         dataIndex: "remark",
     }, {
-        title: "Giao thức",
+        title: '{{ i18n "pages.inbounds.protocol" }}',
         align: 'center',
         width: 60,
         scopedSlots: { customRender: 'protocol' },
     }, {
-        title: "Cổng",
+        title: '{{ i18n "pages.inbounds.port" }}',
         align: 'center',
         dataIndex: "port",
         width: 60,
     }, {
-        title: "Lưu lượng ↑|↓",
+        title: '{{ i18n "pages.inbounds.traffic" }}↑|↓',
         align: 'center',
         width: 150,
         scopedSlots: { customRender: 'traffic' },
     }, {
-        title: "Chi tiết",
+        title: '{{ i18n "pages.inbounds.details" }}',
         align: 'center',
         width: 40,
         scopedSlots: { customRender: 'settings' },
     }, {
-        title: "Cấu hình truyền",
+        title: '{{ i18n "pages.inbounds.transportConfig" }}',
         align: 'center',
         width: 60,
         scopedSlots: { customRender: 'stream' },
     }, {
-        title: "Hạn sử dụng",
+        title: '{{ i18n "pages.inbounds.expireDate" }}',
         align: 'center',
         width: 80,
         scopedSlots: { customRender: 'expiryTime' },
@@ -234,27 +236,31 @@
             },
             openAddInbound() {
                 inModal.show({
-                    title: 'Thêm thư đến',
-                    okText: 'Thêm vào',
+                    title: '{{ i18n "pages.inbounds.addInbound"}}',
+                    okText: '{{ i18n "pages.inbounds.addTo"}}',
+                    cancelText: '{{ i18n "close" }}',
                     confirm: async (inbound, dbInbound) => {
                         inModal.loading();
                         await this.addInbound(inbound, dbInbound);
                         inModal.close();
-                    }
+                    },
+                    isEdit: false
                 });
             },
             openEditInbound(dbInbound) {
                 const inbound = dbInbound.toInbound();
                 inModal.show({
-                    title: 'Sửa đổi đầu vào',
-                    okText: 'Lưu lại',
+                    title: '{{ i18n "pages.inbounds.modifyInbound"}}',
+                    okText: '{{ i18n "pages.inbounds.revise"}}',
+                    cancelText: '{{ i18n "close" }}',
                     inbound: inbound,
                     dbInbound: dbInbound,
                     confirm: async (inbound, dbInbound) => {
                         inModal.loading();
                         await this.updateInbound(inbound, dbInbound);
                         inModal.close();
-                    }
+                    },
+                    isEdit: true
                 });
             },
             async addInbound(inbound, dbInbound) {
@@ -295,10 +301,10 @@
             },
             resetTraffic(dbInbound) {
                 this.$confirm({
-                    title: 'Đặt lại luồng',
-                    content: 'Bạn có chắc chắn muốn thiết lập lại quy trình không??',
-                    okText: 'Đặt lại',
-                    cancelText: 'Hủy',
+                    title: '{{ i18n "pages.inbounds.resetTraffic"}}',
+                    content: '{{ i18n "pages.inbounds.resetTrafficContent"}}',
+                    okText: '{{ i18n "reset"}}',
+                    cancelText: '{{ i18n "cancel"}}',
                     onOk: () => {
                         const inbound = dbInbound.toInbound();
                         dbInbound.up = 0;
@@ -309,16 +315,16 @@
             },
             delInbound(dbInbound) {
                 this.$confirm({
-                    title: 'Đặt lại luồng',
-                    content: 'Bạn có chắc chắn muốn xóa luồng đến không?',
-                    okText: 'Xóa bỏ',
-                    cancelText: 'Hủy',
+                    title: '{{ i18n "pages.inbounds.deleteInbound"}}',
+                    content: '{{ i18n "pages.inbounds.deleteInboundContent"}}',
+                    okText: '{{ i18n "delete"}}',
+                    cancelText: '{{ i18n "cancel"}}',
                     onOk: () => this.submit('/xui/inbound/del/' + dbInbound.id),
                 });
             },
             showQrcode(dbInbound) {
                 const link = dbInbound.genLink();
-                qrModal.show('Mã QR', link);
+                qrModal.show('{{ i18n "qrCode"}}', link, dbInbound);
             },
             showInfo(dbInbound) {
                 infoModal.show(dbInbound);
