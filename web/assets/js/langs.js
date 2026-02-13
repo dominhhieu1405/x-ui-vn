@@ -9,6 +9,11 @@ supportLangs = [
         value : "zh-Hans",
         icon : "🇨🇳"
     },
+    {
+        name : "Tiếng Việt",
+        value : "vi-VN",
+        icon : "🇻🇳"
+    },
 ]
 
 function getLang(){
