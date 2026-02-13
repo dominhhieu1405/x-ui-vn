@@ -2,16 +2,16 @@
 > **Disclaimer: This project is only for personal learning and communication, please do not use it for illegal purposes, please do not use it in a production environment**
 
 
-xray panel supporting multi-protocol, **Multi-lang (English,Chinese)**, **IP Restrication Per Inbound**
+xray panel supporting multi-protocol, **Multi-lang (English,Chinese,Vietnamese)**, **IP Restrication Per Inbound**
 
 | Features        | Enable?           |
 | ------------- |:-------------:|
 | Multi-lang | :heavy_check_mark: |
-| [IP Restriction](https://github.com/HexaSoftwareTech/x-ui/#enable-ip-restrictions-per-inbound) | :heavy_check_mark: |
-| [Inbound Multi User](https://github.com/HexaSoftwareTech/x-ui/#enable-multi-user-traffic--exprire-day) | :heavy_check_mark: |
-| [Multi User Traffic & expire day](https://github.com/HexaSoftwareTech/x-ui/#enable-multi-user-traffic--exprire-day) | :heavy_check_mark: |
-| [REST API](https://github.com/HexaSoftwareTech/x-ui/pull/51) | :heavy_check_mark: |
-| [Telegram BOT](https://github.com/HexaSoftwareTech/x-ui/pull/110) | :heavy_check_mark: |
+| [IP Restriction](https://github.com/dominhhieu1405/x-ui-vn/#enable-ip-restrictions-per-inbound) | :heavy_check_mark: |
+| [Inbound Multi User](https://github.com/dominhhieu1405/x-ui-vn/#enable-multi-user-traffic--exprire-day) | :heavy_check_mark: |
+| [Multi User Traffic & expire day](https://github.com/dominhhieu1405/x-ui-vn/#enable-multi-user-traffic--exprire-day) | :heavy_check_mark: |
+| [REST API](https://github.com/dominhhieu1405/x-ui-vn/pull/51) | :heavy_check_mark: |
+| [Telegram BOT](https://github.com/dominhhieu1405/x-ui-vn/pull/110) | :heavy_check_mark: |
 
 **If you think this project is helpful to you, you may wish to give a** :star2: 
 
@@ -85,12 +85,12 @@ find this in config :
 # Install & Upgrade
 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/HexaSoftwareTech/x-ui/master/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/dominhhieu1405/x-ui-vn/main/install.sh)
 ```
 
 ## Manual install & upgrade
 
-1. First download the latest compressed package from https://github.com/HexaSoftwareTech/x-ui/releases , generally choose Architecture `amd64`
+1. First download the latest compressed package from https://github.com/dominhhieu1405/x-ui-vn/releases , generally choose Architecture `amd64`
 2. Then upload the compressed package to the server's `/root/` directory and `root` rootlog in to the server with user
 
 > If your server cpu architecture is not `amd64` replace another architecture
@@ -110,7 +110,7 @@ systemctl restart x-ui
 
 ## Install using docker
 
-> This docker tutorial and docker image are provided by [HexaSoftwareTech](https://github.com/HexaSoftwareTech)
+> This docker tutorial and docker image are provided by [dominhhieu1405/x-ui-vn](https://github.com/dominhhieu1405/x-ui-vn)
 
 1. install docker
 
@@ -126,7 +126,7 @@ docker run -itd --network=host \
     -v $PWD/db/:/etc/x-ui/ \
     -v $PWD/cert/:/root/cert/ \
     --name x-ui --restart=unless-stopped \
-    HexaSoftwareTech/x-ui:latest
+    dominhhieu1405/x-ui-vn:latest
 ```
 
 > Build your own image
@@ -137,7 +137,7 @@ docker build -t x-ui .
 
 ## SSL certificate application
 
-> This feature and tutorial are provided by [FranzKafkaYu](https://github.com/FranzKafkaYu)
+> This feature and tutorial are provided by [dominhhieu1405/x-ui-vn](https://github.com/dominhhieu1405/x-ui-vn)
 
 The script has a built-in SSL certificate application function. To use this script to apply for a certificate, the following conditions must be met:
 
@@ -161,7 +161,7 @@ Precautions:
 
 ## Tg robot use (under development, temporarily unavailable)
 
-> This feature and tutorial are provided by [FranzKafkaYu](https://github.com/FranzKafkaYu)
+> This feature and tutorial are provided by [dominhhieu1405/x-ui-vn](https://github.com/dominhhieu1405/x-ui-vn)
 
 X-UI supports daily traffic notification, panel login reminder and other functions through the Tg robot. To use the Tg robot, you need to apply for the specific application tutorial. You can refer to the [blog](https://coderfan.net/how-to-use-telegram-bot-to-alarm-you-when-someone-login-into-your-vps.html)
 Set the robot-related parameters in the panel background, including:
@@ -207,4 +207,4 @@ x-ui v2-ui
 
 ## Stargazers over time
 
-[![Stargazers over time](https://starchart.cc/HexaSoftwareTech/x-ui.svg)](https://starchart.cc/HexaSoftwareTech/x-ui)
+[![Stargazers over time](https://starchart.cc/dominhhieu1405/x-ui-vn.svg)](https://starchart.cc/dominhhieu1405/x-ui-vn)
